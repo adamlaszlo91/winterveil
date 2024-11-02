@@ -5,6 +5,7 @@ Add winter effect to images
 - Add fog
 - WIP Add showfall
 - WIP Add fallen snow
+- WIP Add parameters
 
 ## Example
 | Input                        | Output                       |

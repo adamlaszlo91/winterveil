@@ -2,6 +2,9 @@ import sys
 import cv2
 import torch
 import numpy as np
+import random
+
+from snowflake_generator import SnowflakeGenerator
 
 
 def get_depth_map(image: np.ndarray) -> np.ndarray:
@@ -30,13 +33,42 @@ def add_fog(image: np.ndarray, depth_map: np.ndarray) -> np.ndarray:
     # Inverse the depth as MiDaS sets higher values to closer locations
     depth_map = 1 - depth_map
     # Create alpha channels for RGB matrix multiplication
-    depth_map = cv2.merge([depth_map, depth_map, depth_map])
+    depth_mask = cv2.merge([depth_map, depth_map, depth_map])
 
     height, width, channels = image.shape
     fog = np.ones((height, width, channels), dtype=np.uint8) * 255
-    foggy_image = (fog * depth_map + image * (1 - depth_map)).astype(np.uint8)
+    foggy_image = (fog * depth_mask + image *
+                   (1 - depth_mask)).astype(np.uint8)
 
     return foggy_image
+
+
+def add_snow(image: np.ndarray, depth_map: np.ndarray, generator: SnowflakeGenerator, count: int) -> np.ndarray:
+    # Normalize depth values to be between 0 and 1
+    depth_map = (depth_map-np.min(depth_map)) / \
+        (np.max(depth_map)-np.min(depth_map))
+
+    height, width, _ = image.shape
+    snowy_image = image.copy()
+
+    snowflake_size = 60
+
+    # Put snowflakes onto random 3d coordinates and manipulate them
+    # according to their z coordinate and depth map
+    for _ in range(count):
+        x = random.randint(0, width - snowflake_size - 1)
+        y = random.randint(0, height - snowflake_size - 1)
+        z = random.uniform(0, 1)
+        if z > depth_map[y][x]:
+            snowflake, snowflake_mask = generator.generate(
+                size=snowflake_size, blur_multiplier=(1-z) / 2)
+
+            original_window = snowy_image[y:y +
+                                          snowflake_size, x:x+snowflake_size]
+            snowy_image[y:y+snowflake_size, x:x+snowflake_size] = (
+                snowflake*snowflake_mask + original_window * (1-snowflake_mask))
+
+    return snowy_image
 
 
 def main() -> None:
@@ -53,8 +85,13 @@ def main() -> None:
 
     depth_map = get_depth_map(image=image)
     cv2.imwrite('out/depth_map.png', depth_map)
-    output = add_fog(image=image, depth_map=depth_map)
-    cv2.imwrite('out/output.png', cv2.cvtColor(output, cv2.COLOR_RGB2BGR))
+    output = image
+    # output = add_fog(image=output, depth_map=depth_map)
+    output = add_snow(image=output, depth_map=depth_map,
+                      generator=SnowflakeGenerator(), count=100)
+
+    cv2.imwrite('out/output.png',
+                cv2.cvtColor(output, cv2.COLOR_RGB2BGR))
 
 
 if __name__ == '__main__':
