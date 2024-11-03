@@ -3,14 +3,14 @@ Add winter effect to images
 
 ## Features
 - Add fog
-- WIP Add showfall
+- Add showfall
 - WIP Add fallen snow
 - WIP Add parameters
 
 ## Example
-| Input                        | Output                       |
-| ---------------------------- | ---------------------------- |
-| ![makise](images/makise.jpg) | ![output](images/output.png) |
+| Input                          | Output                         |
+| ------------------------------ | ------------------------------ |
+| ![makise](examples/makise.jpg) | ![output](examples/output.png) |
 
 ## Usage
 ### Install dependencies

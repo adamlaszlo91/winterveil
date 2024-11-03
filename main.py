@@ -51,7 +51,7 @@ def add_snow(image: np.ndarray, depth_map: np.ndarray, generator: SnowflakeGener
     height, width, _ = image.shape
     snowy_image = image.copy()
 
-    snowflake_size = 60
+    snowflake_size = int(width * height * 0.00002)
 
     # Put snowflakes onto random 3d coordinates and manipulate them
     # according to their z coordinate and depth map
@@ -61,7 +61,7 @@ def add_snow(image: np.ndarray, depth_map: np.ndarray, generator: SnowflakeGener
         z = random.uniform(0, 1)
         if z > depth_map[y][x]:
             snowflake, snowflake_mask = generator.generate(
-                size=snowflake_size, blur_multiplier=(1-z) / 2)
+                size=snowflake_size, distance_ratio=z)
 
             original_window = snowy_image[y:y +
                                           snowflake_size, x:x+snowflake_size]
@@ -86,9 +86,9 @@ def main() -> None:
     depth_map = get_depth_map(image=image)
     cv2.imwrite('out/depth_map.png', depth_map)
     output = image
-    # output = add_fog(image=output, depth_map=depth_map)
     output = add_snow(image=output, depth_map=depth_map,
-                      generator=SnowflakeGenerator(), count=100)
+                      generator=SnowflakeGenerator(), count=400)
+    output = add_fog(image=output, depth_map=depth_map)
 
     cv2.imwrite('out/output.png',
                 cv2.cvtColor(output, cv2.COLOR_RGB2BGR))
