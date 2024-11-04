@@ -4,6 +4,7 @@ import torch
 import numpy as np
 import random
 import util as util_
+import argparse
 
 from snowflake_generator import SnowflakeGenerator
 
@@ -77,13 +78,29 @@ def add_fallen_snow(image: np.ndarray, depth_map: np.ndarray) -> np.ndarray:
     return snowy_image
 
 
+def setup_argparse():
+    parser = argparse.ArgumentParser(
+        prog='WinterVeil')
+    parser.add_argument('-i', '--image', required=True,
+                        help='input image path')
+    parser.add_argument('-f', '--fog',
+                        action='store_true', help='add fog to the image')
+    parser.add_argument('-s', '--snow',
+                        action='store_true', help='add snow to the image')
+    parser.add_argument('-ss', '--snowflake-size',
+                        default=12, type=int, help='size of snowflakes in pixel')
+    parser.add_argument('-sc', '--snowflake-count',
+                        default=400, type=int, help='number of snowflakes on image (visibility depends on depth map!)')
+    parser.add_argument('-fs', '--fallen-snow',
+                        action='store_true', help='add fallen snow to the image')
+    return parser.parse_args()
+
+
 def main() -> None:
-    if len(sys.argv) < 2:
-        print('Please provide the image path.')
-        return
+    args = setup_argparse()
 
     try:
-        image = cv2.imread(sys.argv[1])
+        image = cv2.imread(args.image)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     except:
         print('Please provide a valid image path.')
@@ -96,12 +113,15 @@ def main() -> None:
 
     output = image
 
-    output = add_fallen_snow(image=output, depth_map=depth_map)
-    output = add_snow(image=output, depth_map=depth_map,
-                      generator=SnowflakeGenerator(), snowflake_size=12, count=400)
-    output = add_fog(image=output, depth_map=depth_map)
+    if args.fallen_snow:
+        output = add_fallen_snow(image=output, depth_map=depth_map)
+    if args.snow:
+        output = add_snow(image=output, depth_map=depth_map,
+                          generator=SnowflakeGenerator(), snowflake_size=args.snowflake_size, count=args.snowflake_count)
+    if args.fog:
+        output = add_fog(image=output, depth_map=depth_map)
 
-    cv2.imwrite('out/output.png',
+    cv2.imwrite(f'out/output{'_f' if args.fog else ''}{'_s' if args.snow else ''}{'_fs' if args.fallen_snow else ''}.png',
                 cv2.cvtColor(output, cv2.COLOR_RGB2BGR))
 
 
