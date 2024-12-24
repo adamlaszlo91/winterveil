@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import filedialog as fd
-import cv2
 from PIL import Image, ImageTk, ImageOps
 from core import Core
+import util
 
 
 class GUI:
@@ -12,13 +12,16 @@ class GUI:
 
         self.window = tk.Tk()
         self.window.title('Winterveil v0.0.2')
-        self.window.geometry('600x400')
+        self.window.geometry(util.quarterWindowGeometry(window=self.window))
 
         main_frame = tk.Frame()
         main_frame.pack(fill=tk.BOTH, expand=True)
 
         left_frame = self.create_left_frame(master=main_frame)
-        left_frame.pack(fill=tk.BOTH, expand=True)
+        left_frame.pack(fill=tk.BOTH, expand=True, side=tk.LEFT)
+
+        left_frame = self.create_right_frame(master=main_frame)
+        left_frame.pack(fill=tk.Y, expand=False, side=tk.RIGHT)
 
     def create_left_frame(self, master: tk.Widget) -> tk.Frame:
         frame = tk.Frame(master=master)
@@ -76,6 +79,19 @@ class GUI:
         file_path = fd.askopenfilename(filetypes=filetypes)
         self.core.load_image(path=file_path)
         self.update_image()
+
+    def create_right_frame(self, master: tk.Widget) -> tk.Frame:
+        frame = tk.Frame(master=master, bg='yellow')
+
+        fog_setting_frame = self.create_setting_frame(master=frame)
+        fog_setting_frame.pack(fill=tk.X, expand=False)
+
+        return frame
+
+    def create_setting_frame(self, master: tk.Widget) -> tk.Frame:
+        frame = tk.Frame(master=master, bg='orange', width=200, height=100)
+
+        return frame
 
     def mainloop(self) -> None:
         self.window.mainloop()
