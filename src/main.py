@@ -1,9 +1,11 @@
-
 from gui import GUI
+from core import Core
 
 
 def main() -> None:
-    gui = GUI()
+    core = Core()
+    gui = GUI(core)
+    gui.mainloop()
 
 
 if __name__ == '__main__':
