@@ -50,7 +50,7 @@ options:
 
 ## Acknowledgments
 
-This project uses the [MiDaS depth estimation model]([link-to-model-repository-or-paper](https://arxiv.org/abs/1907.01341)) by René Ranftl, Katrin Lasinger, David Hafner, Konrad Schindler, and Vladlen Koltun, which is licensed under the MIT License. If you use this project, please also cite their original work:
+This project uses the [MiDaS depth estimation model](https://arxiv.org/abs/1907.01341) by René Ranftl, Katrin Lasinger, David Hafner, Konrad Schindler, and Vladlen Koltun, which is licensed under the MIT License. If you use this project, please also cite their original work:
 
 ```bibtex
 @article{Ranftl2020,
